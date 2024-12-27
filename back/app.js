@@ -1,32 +1,31 @@
 const express = require('express');
 const cors = require('cors');
-const mongoose = require('mongoose');
-const bodyParser = require('body-parser');
 const dotenv = require('dotenv');
+const connectDB = require('./config/db');
 const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const leaveRequestRoutes = require("./routes/leaveRequest.routes");
+const evaluationRoutes = require("./routes/evaluationRoutes");
+const heuresRoutes = require('./routes/heures');
+const notificationRoutes = require('./routes/notifications');
 
 dotenv.config();
+connectDB();
 
 const app = express();
-
-// Configuration de CORS
-app.use(cors({
-    origin: 'http://localhost:3000', // URL de votre frontend (Vite par défaut)
-    credentials: true // Autoriser les cookies (si nécessaire)
-}));
-
-app.use(express.json());
-app.use(bodyParser.json());
-
-mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-    .then(() => console.log('Connected to MongoDB'))
-    .catch(err => console.log('Failed to connect to MongoDB', err));
+app.use(cors());
+app.use(express.json()); // Pour parser le corps des requêtes en JSON
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use('/api/users', userRoutes);
+app.use("/api/leave-requests", leaveRequestRoutes);
+app.use('/api', evaluationRoutes);
+app.use('/api/heures', heuresRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 const PORT = process.env.PORT || 4000;
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
+    console.log(`Serveur démarré sur le port ${PORT}`);
 });
-

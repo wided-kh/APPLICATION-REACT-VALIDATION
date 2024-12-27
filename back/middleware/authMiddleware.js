@@ -1,19 +1,13 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
-
-const authMiddleware = async (req, res, next) => {
-    const token = req.header('Authorization')?.split(' ')[1];
-    if (!token) {
-        return res.status(401).json({ message: "Pas de token, accès refusé." });
-    }
-
+exports.getUserInfo = async (req, res) => {
     try {
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        req.user = await User.findById(decoded.id).select('-password');
-        next();
-    } catch (error) {
-        res.status(401).json({ message: "Token invalide." });
+      const userId = req.userId; // ID de l'utilisateur depuis le token
+      const user = await User.findById(userId).select("-password"); // Ne pas retourner le mot de passe
+      if (!user) {
+        return res.status(404).json({ message: "Utilisateur non trouvé." });
+      }
+      res.status(200).json(user); // Retourner les informations utilisateur
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ message: "Erreur serveur." });
     }
-};
-
-module.exports = authMiddleware;
+  };
